@@ -268,6 +268,10 @@ class FullCssTest(unittest.TestCase):
         result = 'div{display:-webkit-box;display:-moz-box;display:-ms-flexbox;display:-webkit-flex;display:flex;margin:4rem 0;}div a{color:inherit;}'
         self.assertEquals(cssprefix.process(orig, True), result)
 
+    def test_media(self):
+        orig = 'a{color:#fff;}@media screen{a{color:#000;}}'
+        self.assertEquals(cssprefix.process(orig, True), orig)
+
 class TextAlignTest(RuleTester):
     def test_normal(self):
         orig = ['text-align', 'left']

@@ -98,14 +98,25 @@ def generateText(css, minify=False):
     else:
         return '\n'.join(text).strip()
 
-def process(content, minify=False):
-    css = getStyles(content)
-    css2 = []
-    for block in css:
+def processBlock(block):
+    if block.get('rules'):
         rules2 = []
         for rule in block['rules']:
             rules2 += rules.process(rule)
         block['rules'] = rules2
-        css2.append(block)
-	
+        return block
+
+    wrapper = []
+    for sublock in block['wrapper']: 
+        wrapper.append(processBlock(sublock))
+    block['wrapper'] = wrapper
+    return block
+        
+
+def process(content, minify=False):
+    css = getStyles(content)
+    css2 = []
+    for block in css:
+        css2.append(processBlock(block))
+
     return generateText(css2, minify)

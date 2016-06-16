@@ -12,6 +12,35 @@ class GetCssData(unittest.TestCase):
             ]
         )])
     
+    def test_removeComments(self):
+        css = 'body{background:#fff;}/*testing*/a{color:#fff;}'
+        self.assertEquals(cssprefix.getStyles(css), [{
+            'name':'body',
+            'rules':[
+                ['background','#fff']
+            ]
+        },
+        {
+            'name':'a',
+            'rules':[
+                ['color', '#fff']
+            ]
+        }])
+    
+
+    def test_getMedia(self):
+        css = '@media screen{a{color:#fff;}}'
+
+        self.assertEquals(cssprefix.getStyles(css), [{
+            'name':'@media screen',
+            'wrapper':[{
+                'name':'a',
+                'rules':[
+                    ['color', '#fff']
+                ]
+            }]
+        }])
+
     def test_getRulesMultiple(self):
         css = 'body{background: #FFF;font-family:FontAwesome;}a{color:inherit;font-size:inherit;}'
         self.assertEqual(cssprefix.getStyles(css), [dict(
@@ -81,6 +110,11 @@ a:hover{
     def test_genTextMinify(self):
         text = 'body{background:#FFF;font-family:FontAwesome;}a:hover{text-decoration:underline;}'
         self.assertEquals(cssprefix.generateText(self.css, True), text)
+
+    def test_genMedia(self):
+        css = [{'name':'a', 'rules':[['color','#000']]},{'name':'@media screen', 'wrapper':[{'name':'strong', 'rules':[['font-weight','bold']]}]}]
+        text = 'a{color:#000;}@media screen{strong{font-weight:bold;}}'
+        self.assertEquals(cssprefix.generateText(css, True), text)
 
 class RuleTester(unittest.TestCase):
     def setUp(self):

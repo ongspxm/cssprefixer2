@@ -21,18 +21,12 @@ def getBlock(text):
     )
 
 def getStyles(content):
-    styles = []
-    
-    ### remove comments
-    while content.count('/*'):
-        a = content.index('/*')
-        b = content.index('*/')
-        content = content[:a] + content[b+2:]
+    styles = [] 
 
     while content.count('{'):
         info = getBlock(content)
 
-        if info['name'].startswith('@media'):
+        if info['name'].startswith('@'):
             wrapper = []
             content = content[content.index('{')+1:]
 
@@ -105,16 +99,43 @@ def processBlock(block):
             rules2 += rules.process(rule)
         block['rules'] = rules2
         return block
+    
+    if not block.get('wrapper'):
+        print block
 
     wrapper = []
     for sublock in block['wrapper']: 
         wrapper.append(processBlock(sublock))
     block['wrapper'] = wrapper
+    
     return block
         
+def preProcess(content):
+    ### remove trailing
+    content = '\n'.join(map(lambda x: x.strip(), content.split('\n')))
 
-def process(content, minify=False):
-    css = getStyles(content)
+    ### remove multiline comments
+    while content.count('/*'):
+        a = content.index('/*')
+        b = content.index('*/')
+        content = content[:a] + content[b+2:]
+   
+    ### remove comments
+    while content.count('//'):
+        a = content[:a]
+        b = content[a+2:]
+
+        if b.count('/n'):
+            b = b[b.index('\n')+1:]
+        else:
+            b = ''
+
+        content = a+b
+
+    return content
+
+def process(content, minify=False): 
+    css = getStyles(preProcess(content))
     css2 = []
     for block in css:
         css2.append(processBlock(block))

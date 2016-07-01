@@ -1,13 +1,49 @@
 import rules
 
+def getIdx(text, substring):
+    try:
+        return text.index(substring)
+    except ValueError:
+        return -1
+
 def getRules(text):
     rules = []
+    
+    '''
     inner = text.split(';')
     for rule in inner:
         if not rule.count(':'): continue
         rule = map(lambda x:x.strip(), rule.split(':'))
         rules.append([rule[0], ':'.join(rule[1:])])
+    '''
 
+    while text:
+        i = getIdx(text, ':')
+        name = text[:i].strip()
+        text = text[i+1:]
+        
+        a = getIdx(text, ':')
+        b = getIdx(text, ';')
+
+        if b<0:
+            raise Exception('error in phasing, missing ";"')
+        elif a<0:
+            value = ';'.join(text.split(';')[:-1]).strip()
+            text = ''
+        elif a>b and not text.split(';')[0].count('url('):
+            temp = text.split(';') 
+            value = temp[0].strip()
+            text = ';'.join(temp[1:])
+        else:
+            temp = text.split(')')
+            value = (temp[0]+')').strip()
+
+            text = ')'.join(temp[1:])
+            text = ';'.join(text.split(';')[1:]) 
+
+        if name and value:
+            rules += [[name, value]]
+    
     return rules
 
 def getBlock(text):
@@ -22,6 +58,7 @@ def getBlock(text):
 
 def getStyles(content):
     styles = [] 
+    content = preProcess(content)
 
     while content.count('{'):
         info = getBlock(content)
@@ -121,9 +158,9 @@ def preProcess(content):
         content = content[:a] + content[b+2:]
    
     ### remove comments
-    while content.count('//'):
-        a = content[:a]
-        b = content[a+2:]
+    while content.count('//') <> content.count('://'):
+        a = content[:i]
+        b = content[i+2:]
 
         if b.count('/n'):
             b = b[b.index('\n')+1:]
@@ -134,8 +171,8 @@ def preProcess(content):
 
     return content
 
-def process(content, minify=False): 
-    css = getStyles(preProcess(content))
+def process(content, minify=False):  
+    css = getStyles(content)
     css2 = []
     for block in css:
         css2.append(processBlock(block))

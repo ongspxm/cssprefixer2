@@ -81,6 +81,15 @@ class GetCssData(unittest.TestCase):
             ]
         )])
 
+    def test_getRulesEmbbed(self):
+        css = 'body{background-image:url("data:image/svg;base64,asdf")};'
+        self.assertEquals(cssprefix.getStyles(css), [dict(
+            name='body',
+            rules=[
+                ['background-image','url("data:image/svg;base64,asdf")']
+            ]
+        )])
+
 class GenCssText(unittest.TestCase):
     def setUp(self):
         self.css = [dict(

@@ -8,14 +8,6 @@ def getIdx(text, substring):
 
 def getRules(text):
     rules = []
-    
-    '''
-    inner = text.split(';')
-    for rule in inner:
-        if not rule.count(':'): continue
-        rule = map(lambda x:x.strip(), rule.split(':'))
-        rules.append([rule[0], ':'.join(rule[1:])])
-    '''
 
     while text:
         i = getIdx(text, ':')
@@ -62,8 +54,9 @@ def getStyles(content):
 
     while content.count('{'):
         info = getBlock(content)
-
-        if info['name'].startswith('@'):
+        
+        special = '@media @keyframes'.split()
+        if sum([1 for name in special if info['name'].startswith(name)]):
             wrapper = []
             content = content[content.index('{')+1:]
 

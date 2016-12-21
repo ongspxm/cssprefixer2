@@ -151,17 +151,19 @@ def preProcess(content):
         content = content[:a] + content[b+2:]
    
     ### remove comments
-    while content.count('//') <> content.count('://'):
-        a = content[:i]
-        b = content[i+2:]
+    lines = content.split('\n')
+    for i in range(len(lines)):
+        line = lines[i]
+        
+        idx = line.rfind('//')
+        
+        ### dun remove :// links
+        if idx==-1 or line[idx-1]==':':
+            continue
 
-        if b.count('/n'):
-            b = b[b.index('\n')+1:]
-        else:
-            b = ''
-
-        content = a+b
-
+        lines[i] = line[:idx]
+    content = '\n'.join(lines)
+    
     return content
 
 def process(content, minify=False):  
